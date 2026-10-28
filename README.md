@@ -46,3 +46,29 @@ This project is under active development. API serving, automated tests,
 
 containerization, and performance benchmarks will be added incrementally.
 
+## API
+
+Train the model before starting the API:
+
+```powershell
+python scripts/train.py
+uvicorn app.main:app --reload
+```
+
+Interactive documentation is available at:
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+Available endpoints:
+
+- `GET /health`: check API and model status
+- `POST /predict`: submit 13 features for classification
+
+## Tests
+
+```powershell
+pytest -q
+```
+
