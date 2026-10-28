@@ -70,5 +70,20 @@ Available endpoints:
 
 ```powershell
 pytest -q
-```
+
+## Model evaluation
+
+Model selection uses five-fold stratified cross-validation on the training
+data only. The held-out test set is not used to select the model.
+
+Each experiment records:
+
+- Fold-level accuracy and macro F1 scores
+- Mean and standard deviation for each metric
+- Final held-out test results
+- Random seed and dataset information
+- Experiment ID and UTC timestamp
+
+Current metrics are saved in `artifacts/metrics.json`. Experiment runs are
+appended to `artifacts/experiment_history.jsonl`.
 
