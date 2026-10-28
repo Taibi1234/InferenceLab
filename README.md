@@ -98,3 +98,25 @@ To run the same checks locally:
 python scripts/train.py
 python -m pytest -q
 
+## Docker
+
+Build the image:
+
+```powershell
+docker build -t inferencelab:latest .
+```
+
+Run the API:
+
+```powershell
+docker run --rm -p 8000:8000 --name inferencelab inferencelab:latest
+```
+
+Then open:
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+The model is trained automatically while the image is being built.
+
