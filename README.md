@@ -122,3 +122,17 @@ The model is trained automatically while the image is being built.
 
 
 - `POST /predict/batch`: classify between 1 and 1,000 rows in one request
+
+## Performance benchmark
+
+Start the API, then run the benchmark from another terminal:
+
+```powershell
+python scripts/benchmark.py --requests 100 --batch-size 50 --batches 20
+```
+
+The benchmark measures individual and batch request latency, throughput,
+and p50/p95/p99 latency after a warm-up period.
+
+Results are saved to `artifacts/benchmark.json`. These measurements come
+from one sequential local client and are environment-dependent.

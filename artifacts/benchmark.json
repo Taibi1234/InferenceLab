@@ -1,0 +1,36 @@
+{
+  "created_utc": "2026-10-28T21:22:27.037830+00:00",
+  "base_url": "http://127.0.0.1:8000",
+  "python_version": "3.14.3",
+  "operating_system": "Windows",
+  "method": "Sequential requests from one client after a warm-up",
+  "single_prediction": {
+    "request_count": 100,
+    "rows_per_request": 1,
+    "total_predictions": 100,
+    "duration_seconds": 2.4846,
+    "requests_per_second": 40.25,
+    "predictions_per_second": 40.25,
+    "latency_ms": {
+      "mean": 24.844,
+      "p50": 26.533,
+      "p95": 35.066,
+      "p99": 49.273
+    }
+  },
+  "batch_prediction": {
+    "request_count": 20,
+    "rows_per_request": 50,
+    "total_predictions": 1000,
+    "duration_seconds": 0.6476,
+    "requests_per_second": 30.88,
+    "predictions_per_second": 1544.05,
+    "latency_ms": {
+      "mean": 32.371,
+      "p50": 32.344,
+      "p95": 33.503,
+      "p99": 33.7
+    }
+  },
+  "batch_throughput_speedup": 38.36
+}
