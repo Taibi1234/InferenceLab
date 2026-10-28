@@ -1,6 +1,6 @@
 \# InferenceLab
 
-
+[![CI](https://github.com/Taibi1234/InferenceLab/actions/workflows/ci.yml/badge.svg)](https://github.com/Taibi1234/InferenceLab/actions/workflows/ci.yml)
 
 A reproducible machine-learning training and model-serving platform built with Python.
 
@@ -86,4 +86,15 @@ Each experiment records:
 
 Current metrics are saved in `artifacts/metrics.json`. Experiment runs are
 appended to `artifacts/experiment_history.jsonl`.
+
+## Continuous integration
+
+GitHub Actions automatically trains the model and runs the test suite on
+pushes and pull requests targeting `main`.
+
+To run the same checks locally:
+
+```powershell
+python scripts/train.py
+python -m pytest -q
 
