@@ -146,3 +146,26 @@ The API exposes Prometheus-compatible metrics at `/metrics`:
 - Individual and batch prediction totals
 
 Application metrics reset when the process restarts.
+
+## Monitoring stack
+
+Start the API, Prometheus, and Grafana:
+
+```powershell
+docker compose up --build -d
+```
+
+Services:
+
+- API documentation: `http://127.0.0.1:8000/docs`
+- Prometheus: `http://127.0.0.1:9090`
+- Grafana: `http://127.0.0.1:3000`
+
+For local Grafana access, the initial username and password are both `admin`.
+These credentials are for local development only.
+
+Stop the stack:
+
+```powershell
+docker compose down
+```
