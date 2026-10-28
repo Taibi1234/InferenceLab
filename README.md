@@ -136,3 +136,13 @@ and p50/p95/p99 latency after a warm-up period.
 
 Results are saved to `artifacts/benchmark.json`. These measurements come
 from one sequential local client and are environment-dependent.
+
+## Observability
+
+The API exposes Prometheus-compatible metrics at `/metrics`:
+
+- HTTP request counts by method, route, and status code
+- HTTP request duration histograms
+- Individual and batch prediction totals
+
+Application metrics reset when the process restarts.

@@ -123,3 +123,12 @@ def test_batch_size_limit_is_enforced():
         )
 
     assert response.status_code == 422
+
+def test_metrics_endpoint():
+    with TestClient(app) as client:
+        client.get("/health")
+        response = client.get("/metrics")
+
+    assert response.status_code == 200
+    assert "inferencelab_http_requests_total" in response.text
+    assert "inferencelab_http_request_duration_seconds" in response.text
