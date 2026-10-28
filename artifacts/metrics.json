@@ -1,0 +1,17 @@
+{
+  "dataset": "scikit-learn wine recognition dataset",
+  "random_state": 42,
+  "test_size": 0.2,
+  "selection_metric": "macro_f1",
+  "selected_model": "random_forest",
+  "results": {
+    "logistic_regression": {
+      "accuracy": 0.9722222222222222,
+      "macro_f1": 0.9709618874773139
+    },
+    "random_forest": {
+      "accuracy": 1.0,
+      "macro_f1": 1.0
+    }
+  }
+}
