@@ -1,5 +1,5 @@
 {
-  "created_utc": "2026-10-28T21:44:46.527324+00:00",
+  "created_utc": "2026-10-28T22:55:58.309609+00:00",
   "base_url": "http://127.0.0.1:8000",
   "python_version": "3.14.3",
   "operating_system": "Windows",
@@ -8,29 +8,29 @@
     "request_count": 100,
     "rows_per_request": 1,
     "total_predictions": 100,
-    "duration_seconds": 2.0292,
-    "requests_per_second": 49.28,
-    "predictions_per_second": 49.28,
+    "duration_seconds": 2.8462,
+    "requests_per_second": 35.13,
+    "predictions_per_second": 35.13,
     "latency_ms": {
-      "mean": 20.29,
-      "p50": 20.523,
-      "p95": 34.626,
-      "p99": 37.088
+      "mean": 28.46,
+      "p50": 31.55,
+      "p95": 37.01,
+      "p99": 48.986
     }
   },
   "batch_prediction": {
     "request_count": 20,
     "rows_per_request": 50,
     "total_predictions": 1000,
-    "duration_seconds": 0.5193,
-    "requests_per_second": 38.52,
-    "predictions_per_second": 1925.85,
+    "duration_seconds": 0.6386,
+    "requests_per_second": 31.32,
+    "predictions_per_second": 1565.86,
     "latency_ms": {
-      "mean": 25.945,
-      "p50": 25.562,
-      "p95": 32.647,
-      "p99": 33.271
+      "mean": 31.916,
+      "p50": 32.282,
+      "p95": 41.267,
+      "p99": 42.095
     }
   },
-  "batch_throughput_speedup": 39.08
+  "batch_throughput_speedup": 44.57
 }

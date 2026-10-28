@@ -40,7 +40,7 @@ jobs:
         run: python -m pytest -q
 
   docker:
-    name: Build Docker image
+    name: Build and smoke test Docker image
     runs-on: ubuntu-latest
 
     steps:
@@ -49,6 +49,24 @@ jobs:
 
       - name: Build image
         run: docker build -t inferencelab:ci .
+
+      - name: Start container and check health
+        run: |
+          docker run -d --name inferencelab-ci -p 8000:8000 inferencelab:ci
+
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:8000/health; then
+              exit 0
+            fi
+            sleep 2
+          done
+
+          docker logs inferencelab-ci
+          exit 1
+
+      - name: Stop test container
+        if: always()
+        run: docker rm -f inferencelab-ci
 
       - name: Validate Compose configuration
         run: docker compose config -q
