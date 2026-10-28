@@ -76,3 +76,50 @@ def test_non_numeric_features_are_rejected():
         )
 
     assert response.status_code == 422
+
+def test_batch_prediction():
+    with TestClient(app) as client:
+        response = client.post(
+            "/predict/batch",
+            json={"rows": [VALID_FEATURES, VALID_FEATURES]},
+        )
+
+    assert response.status_code == 200
+
+    result = response.json()
+    assert result["count"] == 2
+    assert len(result["predictions"]) == 2
+
+    for prediction in result["predictions"]:
+        assert prediction["predicted_class"] in [0, 1, 2]
+        assert 0.0 <= prediction["confidence"] <= 1.0
+
+
+def test_empty_batch_is_rejected():
+    with TestClient(app) as client:
+        response = client.post(
+            "/predict/batch",
+            json={"rows": []},
+        )
+
+    assert response.status_code == 422
+
+
+def test_invalid_row_inside_batch_is_rejected():
+    with TestClient(app) as client:
+        response = client.post(
+            "/predict/batch",
+            json={"rows": [VALID_FEATURES, [1.0] * 12]},
+        )
+
+    assert response.status_code == 422
+
+
+def test_batch_size_limit_is_enforced():
+    with TestClient(app) as client:
+        response = client.post(
+            "/predict/batch",
+            json={"rows": [VALID_FEATURES] * 1001},
+        )
+
+    assert response.status_code == 422

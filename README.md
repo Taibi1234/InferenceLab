@@ -120,3 +120,5 @@ http://127.0.0.1:8000/docs
 
 The model is trained automatically while the image is being built.
 
+
+- `POST /predict/batch`: classify between 1 and 1,000 rows in one request

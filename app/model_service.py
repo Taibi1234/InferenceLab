@@ -26,16 +26,28 @@ class ModelService:
         self.feature_names = artifact["feature_names"]
 
     def predict(self, features: list[float]) -> tuple[int, float]:
+        return self.predict_batch([features])[0]
+
+    def predict_batch(
+        self,
+        rows: list[list[float]],
+    ) -> list[tuple[int, float]]:
         if self.model is None:
             raise RuntimeError("The model has not been loaded.")
 
         input_frame = pd.DataFrame(
-            [features],
+            rows,
             columns=self.feature_names,
         )
 
-        predicted_class = int(self.model.predict(input_frame)[0])
-        probabilities = self.model.predict_proba(input_frame)[0]
-        confidence = float(max(probabilities))
+        predicted_classes = self.model.predict(input_frame)
+        probabilities = self.model.predict_proba(input_frame)
+        confidences = probabilities.max(axis=1)
 
-        return predicted_class, confidence
+        return [
+            (int(predicted_class), float(confidence))
+            for predicted_class, confidence in zip(
+                predicted_classes,
+                confidences,
+            )
+        ]

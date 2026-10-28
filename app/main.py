@@ -5,7 +5,12 @@ from pathlib import Path
 from fastapi import FastAPI
 
 from app.model_service import ModelService
-from app.schemas import PredictionRequest, PredictionResponse
+from app.schemas import (
+    BatchPredictionRequest,
+    BatchPredictionResponse,
+    PredictionRequest,
+    PredictionResponse,
+)
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -23,8 +28,8 @@ async def lifespan(application: FastAPI):
 
 app = FastAPI(
     title="InferenceLab API",
-    description="Serve predictions from the selected wine-classification model.",
-    version="0.1.0",
+    description="Serve individual and batch wine-classification predictions.",
+    version="0.2.0",
     lifespan=lifespan,
 )
 
@@ -44,4 +49,24 @@ def predict(request: PredictionRequest) -> PredictionResponse:
     return PredictionResponse(
         predicted_class=predicted_class,
         confidence=confidence,
+    )
+
+
+@app.post("/predict/batch", response_model=BatchPredictionResponse)
+def predict_batch(
+    request: BatchPredictionRequest,
+) -> BatchPredictionResponse:
+    results = model_service.predict_batch(request.rows)
+
+    predictions = [
+        PredictionResponse(
+            predicted_class=predicted_class,
+            confidence=confidence,
+        )
+        for predicted_class, confidence in results
+    ]
+
+    return BatchPredictionResponse(
+        count=len(predictions),
+        predictions=predictions,
     )
