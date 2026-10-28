@@ -3,11 +3,16 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import joblib
+import numpy as np
 from sklearn.datasets import load_wine
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, f1_score
-from sklearn.model_selection import StratifiedKFold, cross_validate, train_test_split
+from sklearn.model_selection import (
+    StratifiedKFold,
+    cross_validate,
+    train_test_split,
+)
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
@@ -68,17 +73,53 @@ def evaluate_with_cross_validation(candidates, features, targets):
     return results
 
 
-def main():
-    features, targets = load_wine(return_X_y=True, as_frame=True)
+def build_reference_distribution(features):
+    reference_distribution = {}
 
-    train_features, test_features, train_targets, test_targets = (
-        train_test_split(
-            features,
-            targets,
-            test_size=TEST_SIZE,
-            random_state=RANDOM_STATE,
-            stratify=targets,
+    for feature_name in features.columns:
+        values = features[feature_name].to_numpy(dtype=float)
+
+        bin_edges = np.unique(
+            np.quantile(values, np.linspace(0, 1, 11))
         )
+
+        if len(bin_edges) < 3:
+            raise ValueError(
+                f"Not enough distinct values to bin {feature_name}."
+            )
+
+        bin_edges = bin_edges.astype(float)
+        bin_edges[0] = -np.inf
+        bin_edges[-1] = np.inf
+
+        counts, _ = np.histogram(values, bins=bin_edges)
+        proportions = counts / counts.sum()
+
+        reference_distribution[feature_name] = {
+            "bin_edges": bin_edges,
+            "proportions": proportions,
+        }
+
+    return reference_distribution
+
+
+def main():
+    features, targets = load_wine(
+        return_X_y=True,
+        as_frame=True,
+    )
+
+    (
+        train_features,
+        test_features,
+        train_targets,
+        test_targets,
+    ) = train_test_split(
+        features,
+        targets,
+        test_size=TEST_SIZE,
+        random_state=RANDOM_STATE,
+        stratify=targets,
     )
 
     candidates = create_candidates()
@@ -136,7 +177,11 @@ def main():
         "holdout_evaluation": holdout_results,
     }
 
-    ARTIFACTS_DIR.mkdir(exist_ok=True)
+    ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
+
+    reference_distribution = build_reference_distribution(
+        train_features
+    )
 
     joblib.dump(
         {
@@ -144,6 +189,7 @@ def main():
             "feature_names": features.columns.tolist(),
             "selected_model": selected_model_name,
             "experiment_id": experiment_id,
+            "reference_distribution": reference_distribution,
         },
         ARTIFACTS_DIR / "model.joblib",
     )

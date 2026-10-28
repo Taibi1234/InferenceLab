@@ -18,3 +18,9 @@ PREDICTIONS_TOTAL = Counter(
     "Total model predictions served.",
     ["endpoint"],
 )
+
+DRIFT_CHECKS_TOTAL = Counter(
+    "inferencelab_drift_checks_total",
+    "Total drift checks by overall status.",
+    ["status"],
+)

@@ -3,12 +3,15 @@ from pathlib import Path
 import joblib
 import pandas as pd
 
+from app.drift import assess_drift
+
 
 class ModelService:
     def __init__(self, artifact_path: Path):
         self.artifact_path = artifact_path
         self.model = None
         self.feature_names: list[str] = []
+        self.reference_distribution = None
 
     @property
     def is_loaded(self) -> bool:
@@ -24,6 +27,9 @@ class ModelService:
         artifact = joblib.load(self.artifact_path)
         self.model = artifact["model"]
         self.feature_names = artifact["feature_names"]
+        self.reference_distribution = artifact.get(
+            "reference_distribution"
+        )
 
     def predict(self, features: list[float]) -> tuple[int, float]:
         return self.predict_batch([features])[0]
@@ -51,3 +57,23 @@ class ModelService:
                 confidences,
             )
         ]
+
+    def check_drift(self, rows: list[list[float]]) -> dict:
+        if self.model is None:
+            raise RuntimeError("The model has not been loaded.")
+
+        if self.reference_distribution is None:
+            raise RuntimeError(
+                "Reference distributions are missing. "
+                "Run 'python scripts/train.py' again."
+            )
+
+        input_frame = pd.DataFrame(
+            rows,
+            columns=self.feature_names,
+        )
+
+        return assess_drift(
+            input_frame,
+            self.reference_distribution,
+        )

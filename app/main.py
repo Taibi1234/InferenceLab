@@ -7,6 +7,7 @@ from fastapi import FastAPI, Request, Response
 from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 
 from app.metrics import (
+    DRIFT_CHECKS_TOTAL,
     HTTP_REQUEST_DURATION_SECONDS,
     HTTP_REQUESTS_TOTAL,
     PREDICTIONS_TOTAL,
@@ -15,10 +16,11 @@ from app.model_service import ModelService
 from app.schemas import (
     BatchPredictionRequest,
     BatchPredictionResponse,
+    DriftCheckRequest,
+    DriftCheckResponse,
     PredictionRequest,
     PredictionResponse,
 )
-
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_MODEL_PATH = PROJECT_ROOT / "artifacts" / "model.joblib"
@@ -35,8 +37,8 @@ async def lifespan(application: FastAPI):
 
 app = FastAPI(
     title="InferenceLab API",
-    description="Serve monitored individual and batch predictions.",
-    version="0.3.0",
+    description="Serve monitored individual and batch predictions with drift checks.",
+    version="0.4.0",
     lifespan=lifespan,
 )
 
@@ -116,3 +118,14 @@ def predict_batch(
         count=len(predictions),
         predictions=predictions,
     )
+
+
+@app.post("/drift/check", response_model=DriftCheckResponse)
+def check_drift(request: DriftCheckRequest) -> DriftCheckResponse:
+    result = model_service.check_drift(request.rows)
+
+    DRIFT_CHECKS_TOTAL.labels(
+        status=result["overall_status"]
+    ).inc()
+
+    return DriftCheckResponse(**result)

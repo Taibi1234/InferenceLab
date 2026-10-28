@@ -169,3 +169,17 @@ Stop the stack:
 ```powershell
 docker compose down
 ```
+## Data-drift detection
+
+`POST /drift/check` compares batches of 30–1,000 rows against the training
+feature distributions using the Population Stability Index (PSI).
+
+The current operational thresholds are:
+
+- PSI below 0.10: no significant drift signal
+- PSI from 0.10 to 0.25: moderate drift signal
+- PSI of 0.25 or higher: significant drift signal
+
+These thresholds are heuristics rather than proof of degraded model
+performance. Drift results should trigger investigation, not automatic
+retraining without validation.
