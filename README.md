@@ -7,9 +7,18 @@ project built with Python. It combines model evaluation, REST APIs, batch
 inference, performance benchmarking, data-drift detection, containerization,
 continuous integration, and monitoring.
 
-The example model uses scikit-learn's built-in wine recognition dataset. The
-project is intended for education and portfolio demonstration rather than
-direct production deployment.
+The example uses scikit-learn's built-in wine recognition dataset. This is an
+educational portfolio project, not a production-ready deployment.
+
+## Screenshots
+
+### API documentation
+
+![InferenceLab API documentation](docs/images/api-docs.png)
+
+### Monitoring dashboard
+
+![InferenceLab Grafana dashboard](docs/images/grafana-dashboard.png)
 
 ## Features
 
@@ -19,26 +28,28 @@ direct production deployment.
 - JSON experiment metrics and JSONL experiment history
 - Individual and batch prediction endpoints
 - Request validation with Pydantic
-- Automated API, training, and benchmark tests
+- Automated API, training, benchmark, and drift tests
 - Performance benchmarks with latency percentiles and throughput
 - Prometheus-compatible application metrics
 - Grafana and Prometheus monitoring through Docker Compose
 - Batch data-drift detection using the Population Stability Index
-- Docker image creation and GitHub Actions CI
+- Docker builds with automated container health checks
+- GitHub Actions continuous integration
 
 ## Architecture
 
-```mermaid
-flowchart LR
-    A[Wine dataset] --&gt; B[Training and cross-validation]
-    B --&gt; C[Model and reference distributions]
-    C --&gt; D[FastAPI service]
-    E[API client] --&gt; D
-    D --&gt; F[Individual and batch predictions]
-    D --&gt; G[Data-drift analysis]
-    D --&gt; H[Application metrics]
-    H --&gt; I[Prometheus]
-    I --&gt; J[Grafana dashboards]
+```text
+Wine dataset
+    ↓
+Training and stratified cross-validation
+    ↓
+Model artifact and training reference distributions
+    ↓
+FastAPI service ──→ Individual and batch predictions
+    │
+    ├──→ Batch data-drift analysis
+    │
+    └──→ Application metrics ──→ Prometheus ──→ Grafana
 ```
 
 ## Technology
@@ -67,21 +78,23 @@ InferenceLab/
 │   ├── benchmark.json
 │   ├── experiment_history.jsonl
 │   └── metrics.json
+├── docs/images/
+│   ├── api-docs.png
+│   └── grafana-dashboard.png
 ├── monitoring/
-│   ├── prometheus.yml
-│   └── grafana/provisioning/datasources/
 ├── scripts/
 │   ├── benchmark.py
 │   └── train.py
 ├── tests/
 ├── compose.yaml
 ├── Dockerfile
+├── LICENSE
 ├── pytest.ini
 └── requirements.txt
 ```
 
-The generated `artifacts/model.joblib` file is intentionally excluded from
-Git. It is recreated by running the training script or building the image.
+The generated `artifacts/model.joblib` file is excluded from Git. It is
+recreated by running the training script or building the Docker image.
 
 ## Run locally
 
@@ -168,8 +181,27 @@ Example response:
 }
 ```
 
-The response above is illustrative; exact confidence values depend on the
-selected and trained model.
+This response is illustrative. Exact confidence values depend on the trained
+model.
+
+## Model evaluation
+
+Model selection uses five-fold stratified cross-validation on the training
+data only. The holdout set is reserved for final evaluation.
+
+The latest recorded experiment selected logistic regression:
+
+| Metric | Result |
+|---|---:|
+| Cross-validation macro F1 mean | 0.9796 |
+| Cross-validation macro F1 standard deviation | 0.0273 |
+| Holdout accuracy | 0.9722 |
+| Holdout macro F1 | 0.9710 |
+
+These results come from a small built-in demonstration dataset and should not
+be interpreted as evidence of performance on other datasets.
+
+Complete results are stored in `artifacts/metrics.json`.
 
 ## Automated tests
 
@@ -218,7 +250,8 @@ Run the API:
 docker run --rm -p 8000:8000 --name inferencelab inferencelab:latest
 ```
 
-The model is trained automatically during the image build.
+The model is trained automatically during the image build, so no pre-existing
+model artifact is required.
 
 ## Monitoring stack
 
@@ -271,14 +304,15 @@ retraining without validation.
 
 ## Continuous integration
 
-GitHub Actions performs the following checks for pushes and pull requests
-targeting `main`:
+GitHub Actions performs these checks for pushes and pull requests targeting
+`main`:
 
 1. Installs dependencies in a clean environment
 2. Trains the model
 3. Runs the automated tests
 4. Builds the Docker image
-5. Validates the Docker Compose configuration
+5. Starts the container and checks its health endpoint
+6. Validates the Docker Compose configuration
 
 ## Limitations
 
